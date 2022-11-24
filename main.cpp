@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 #include <fstream>
+
 using namespace std;
 string 
 //kola maszyny, chi, psi i mu
@@ -19,6 +20,7 @@ psi4="00001111000011110000111100001111000011110000111100001",			//53
 psi5="00000111110000011111000001111100000111110000011111000001111",		//59
 input, output;
 int ic1, ic2, ic3, ic4, ic5, im1, im2, ip1, ip2, ip3, ip4, ip5, i = 0, j = 0, k = 0, codekey, encoded, control=0;
+char ending;
 map<char, int>ITA2mod{
 	{'@',0x00},	{'e',0x01},	{'#',0x02},	{'a',0x03},	{' ',0x04},	{'s',0x05},	{'i',0x06},	{'u',0x07},
 	{'%',0x08},	{'d',0x09},	{'r',0x0a},	{'j',0x0b},	{'n',0x0c},	{'f',0x0d},	{'c',0x0e},	{'k' ,0x0f},
@@ -58,7 +60,6 @@ void texthelp(map<char, int>input)
 	}
 	cout << "\n";
 }
-
 void encode(string toencode)
 {
 
@@ -88,7 +89,7 @@ void encode(string toencode)
 }
 void attract()
 {
-	cout << "\nCo chcesz zrobic?\n1 - Podaj obslugiwane znaki\n2 - Jak dziala maszyna Lorenza?\n3 - Konfiguracja maszyny\n4 - Test dzialania\n5 - Kodowanie/Dekodowanie w konsoli\n6 - Kodowanie/dekodowanie w pliku\n";
+	cout << "\nCo chcesz zrobic?\n1 - Podaj obslugiwane znaki\n2 - Jak dziala maszyna Lorenza?\n3 - Konfiguracja maszyny\n4 - Test dzialania\n5 - Kodowanie/Dekodowanie w konsoli\n6 - Kodowanie/dekodowanie w pliku\n7 - Koniec pracy\n";
 }
 void test()
 {
@@ -107,6 +108,7 @@ void configwheels() {}
 void writeandcode() 
 {
 	cout << "\nPodaj tekst do zakodowania\n";
+	cin.ignore();
 	getline(cin, input);
 	encode(input);
 	cout << output;
@@ -117,34 +119,34 @@ void filecode() {}
 int main()
 {
 	cout << "Symulator maszyny Lorenza";
-	attract();
-	while (control != 8) {
-
+	while (control != 7) {
 		switch(control){
 		case 1:
 			texthelp(ITA2mod);
-			attract();
 			control = 0;
 			break;
 		case 2:
 			cout << "DO ZROBIENIA";
-			attract();
+			control = 0;
 			break;
 		case 3:
 			cout << "DO ZROBIENIA";
-			attract();
+			control = 0;
 			break;
 		case 4:
 			test();
-			attract();
+			control = 0;
 			break;
 		case 5:
 			writeandcode();
-			attract();
 			control = 0;
 			break;
+		case 6:
+			cout << "DO ZROBIENIA";
+			break;
 		}
-
+		attract();
 		cin >> control;
+
 	}
 }
