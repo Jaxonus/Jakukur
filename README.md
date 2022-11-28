@@ -1,5 +1,6 @@
 # Jakukur
 Praca Inżynierska Jakub Kurowski 2022/2023
+-----------------------------------
 Prosty symulator maszyny Lorenza w C++, w trybie tekstowym w konsoli
 Symulator obsługuje kodowanie i dekodowanie tekstu wpisywanego w konsoli lub w plikach, a także ręczną konfigurację kół kodowych z konsoli
 ------------------------------------
