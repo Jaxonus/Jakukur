@@ -19,12 +19,15 @@ psi2="00110011001100110011001100110011001100110011001",					//47
 psi3="000111000111000111000111000111000111000111000111000",				//51
 psi4="00001111000011110000111100001111000011110000111100001",			//53
 psi5="00000111110000011111000001111100000111110000011111000001111",		//59
-input, output; //stringi wpsiywane przez u¿ytkownika i wypisywane przez program
-int ic1, ic2, ic3, ic4, ic5, im1, im2, ip1, ip2, ip3, ip4, ip5, //wartoœci na obecnej pozycji ko³a
+input, output, //stringi wpsiywane przez u¿ytkownika i wypisywane przez program
+buffer; //string bufora do odczytu tekstu
+int ic1, ic2, ic3, ic4, ic5, im1, im2, ip1, ip2, ip3, ip4, ip5, //w kodowaniu - wartoœci na obecnej pozycji ko³a, w konfiguracji - rozmiar ko³a
 i = 0, j = 0, k = 0, //indeksy kó³
 codekey, //obecna wartoœæ kodu chi XOR psi
 encoded, //obecna wartoœæ znaku zakodowanego 
 control=0; //wartoœæ kontrolna do sterowania menu
+ifstream infile;
+ofstream outfile;
 map<char, int>ITA2mod{ //mapa reprezentuj¹ca ZMODYFIKOWANY kod ITA2 (orygina³ zawiera znaki kontrolne których nie wykorzystujê, ze wzglêdu na mo¿liwoœæ powstawania b³êdów)
 	{'@',0x00},	{'e',0x01},	{'#',0x02},	{'a',0x03},	{' ',0x04},	{'s',0x05},	{'i',0x06},	{'u',0x07},
 	{'%',0x08},	{'d',0x09},	{'r',0x0a},	{'j',0x0b},	{'n',0x0c},	{'f',0x0d},	{'c',0x0e},	{'k' ,0x0f},
@@ -41,9 +44,14 @@ char find_mapkey(map<char,int>input, int value)//znajdŸ znak na podstawie jego w
 		if (it->second == value)
 			return it->first;
 }
-int char2num(char in)//szybka konwersja znaku liczby na liczbê, potrzebna gdy¿ sekwencje kó³ s¹ przechowywane jako string
+//szybka konwersje znaku liczby na liczbê i vice versa, potrzebna gdy¿ sekwencje kó³ s¹ przechowywane jako string
+int char2num(char in)
 {
 	return in - 48;
+}
+char num2char(int in)
+{
+	return in + 48;
 }
 int calc_codekey(int c1,int c2,int c3,int c4,int c5,int p1,int p2,int p3,int p4,int p5)//generacja klucza koduj¹cego jako chi XOR psi
 {
@@ -69,25 +77,33 @@ void encode(string toencode)//kodowanie wiadomoœci
 	i = 0, j = 0, k = 0;
 	for (i = 0; i < toencode.length(); i++)
 	{
-		ic1 = char2num(chi1[i % 41]);
-		ic2 = char2num(chi2[i % 31]);
-		ic3 = char2num(chi3[i % 29]);
-		ic4 = char2num(chi4[i % 26]);
-		ic5 = char2num(chi5[i % 23]);
-		im1 = char2num(mu1[i % 61]);
+		if (toencode[i] == 13 && toencode[i + 1] == 10)//je¿eli pojawia siê nowa linia, to wpisz na sztywno CR LF, bo ich znaki kontrolne nie s¹ kodowane
+		{ 
+			output += 10;
+			i++;
+		}
+		else 
+		{
+			ic1 = char2num(chi1[i % 41]);
+			ic2 = char2num(chi2[i % 31]);
+			ic3 = char2num(chi3[i % 29]);
+			ic4 = char2num(chi4[i % 26]);
+			ic5 = char2num(chi5[i % 23]);
+			im1 = char2num(mu1[i % 61]);
 
-		im2 = char2num(mu2[k % 37]);
-		if (im1 == 1)k += 1;
-		if (im2 == 1)j += 1;
-		ip1 = char2num(psi1[j % 43]);
-		ip2 = char2num(psi2[j % 47]);
-		ip3 = char2num(psi3[j % 51]);
-		ip4 = char2num(psi4[j % 53]);
-		ip5 = char2num(psi5[j % 59]);
+			im2 = char2num(mu2[k % 37]);
+			if (im1 == 1)k += 1;
+			if (im2 == 1)j += 1;
+			ip1 = char2num(psi1[j % 43]);
+			ip2 = char2num(psi2[j % 47]);
+			ip3 = char2num(psi3[j % 51]);
+			ip4 = char2num(psi4[j % 53]);
+			ip5 = char2num(psi5[j % 59]);
 
-		codekey = calc_codekey(ic1, ic2, ic3, ic4, ic5, ip1, ip2, ip3, ip4, ip5);
-		encoded = ITA2mod[toencode[i]] ^ codekey;
-		output += find_mapkey(ITA2mod, encoded);
+			codekey = calc_codekey(ic1, ic2, ic3, ic4, ic5, ip1, ip2, ip3, ip4, ip5);
+			encoded = ITA2mod[toencode[i]] ^ codekey;
+			output += find_mapkey(ITA2mod, encoded);
+		}
 	}
 }
 void attract()//opcje menu
@@ -126,8 +142,43 @@ void lorenzinfo()//relatywnie szybki opis dzia³ania maszyny
 	cout << "	Aby zapewniæ nieprzywidywalnoœæ wartoœci koduj¹cych, przed transmisj¹ nale¿a³o skonfigurowaæ ko³a. Kombinacje kó³ by³y przesy³ane miêdzy stacjami jako sekwencja 12 liter, gdzie ka¿da litera odpowiada³a pewnej sekwencji na kole w tzw. ksi¹¿ce QEP, u¿ywanej do konfiguracji\n";
 	cout << "Oczywiœcie, podobnie jak w przypadku Enigmy, niedopatrzenia pod wzglêdem przesy³u klucza konfiguracyjnego (gdy¿ tylko on by³ niekodowany) przyczyni³y siê do zdekodowania dzia³ania Maszyny Lorenza przez wywiad Brytyjski miêdzy Sierpniem '41 i Styczniem '42\n";
 }
-void configwheels()//kofiguracja maszyny na podstawie pliku tekstowego 
-{}
+void wheelconfig(string wheel,int wheelsize,string configseq) //konfiguracja jednego ko³a
+{
+	wheel.clear();
+	if (configseq.length() < wheelsize)
+	{
+		for (int m = configseq.length();m<wheelsize;m+=m)
+		{
+			configseq += configseq;
+		}
+	}
+	 if(configseq.length()>wheelsize)
+	{
+		configseq.erase(configseq.begin()+wheelsize, configseq.end());
+	}
+	 for (int n = 0; n < wheelsize; n++)
+	 {
+		 wheel[n] = num2char(configseq[n]%2);
+	 }
+}
+void configwheels()//kofiguracja kó³ maszyny
+{
+	ic1 = chi1.length();
+	ic2 = chi2.length();
+	ic3 = chi3.length();
+	ic4 = chi4.length();
+	ic5 = chi5.length();
+	im1 = mu1.length();
+	im2 = mu1.length();
+	ip1 = psi1.length();
+	ip2 = psi2.length();
+	ip3 = psi3.length();
+	ip4 = psi4.length();
+	ip5 = psi5.length();
+	//TODO:
+	// wpisywanko, dzis (28.11) juz mi sie nie chce
+	//TODO
+}
 void writeandcode()//kodowanie/dekodowanie w konsoli
 {
 	cout << "\nPodaj tekst do zakodowania\n";
@@ -139,7 +190,30 @@ void writeandcode()//kodowanie/dekodowanie w konsoli
 	output.clear();
 }
 void filecode()//kodowanie/dekodowanie pliku tekstowego
-{}
+{
+	cout << "\nPodaj nazwê pliku wejœciowego lub œcie¿kê do niego (najlepiej .txt)\n";
+	cin.ignore();
+	getline(cin, input);
+	cout << "Wczytujê...\n";
+	infile.open(input, ios::in | ios::binary);
+	if (infile) {
+		infile.seekg(0, ios::end);
+		buffer.resize(infile.tellg());
+		infile.seekg(0, ios::beg);
+		infile.read(&buffer[0], buffer.size());
+		infile.close();
+		cout << "Odczyt pomyœlny, kodujê wiadomoœæ...\n";
+		encode(buffer);
+		cout << "Wiadomoœæ zakodowana, zapisujê do pliku 'output.txt'\n";
+		outfile.open("output.txt");
+		outfile << output;
+		cout << "Zapis zakoñczony sukcesem\n";
+		outfile.close();
+		input.clear();
+		output.clear();
+	}
+	else cout << "B³¹d odczytu pliku wejœciowego, sprawdŸ nazwê i/lub œcie¿kê\n";
+}
 int main()//g³ówna pêtla programu
 {
 	setlocale(LC_ALL, "pl_PL");
@@ -167,7 +241,8 @@ int main()//g³ówna pêtla programu
 			control = 0;
 			break;
 		case 6:
-			cout << "DO ZROBIENIA";
+			filecode();
+			control = 0;
 			break;
 		}
 		attract();
