@@ -205,7 +205,7 @@ string wheelconfig(string wheel,int wheelsize,string configseq)
 //kofiguracja kó³ maszyny
 void configwheels()
 {
-	cout << "\nKonfiguracja kó³, podaj sekwencjê (zerojedynkowe lub alfanumeryczne)\n";
+	cout << "\nKonfiguracja kó³, dla ka¿dego ko³a po kolei, podaj sekwencjê znaków (zerojedynkow¹ lub alfanumeryczn¹) dowolnej d³ugoœci\n";
 	ic1 = chi1.length();
 	cout << "Dla chi 1:";
 	cin >> input;
