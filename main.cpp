@@ -55,13 +55,13 @@ char find_mapkey(map<char,int>input, int value)
 			return it->first;
 }
 //szybka konwersje znaku liczby na liczbê i vice versa, potrzebna gdy¿ sekwencje kó³ s¹ przechowywane jako string
-int char2num(char in)
+int char2num(char inchar)
 {
-	return in - 48;
+	return inchar - 48;
 }
-char num2char(int in)
+char num2char(int innum)
 {
-	return in + 48;
+	return innum + 48;
 }
 //generacja klucza koduj¹cego jako chi XOR psi
 int calc_codekey(int c1,int c2,int c3,int c4,int c5,int p1,int p2,int p3,int p4,int p5)
@@ -73,11 +73,11 @@ int calc_codekey(int c1,int c2,int c3,int c4,int c5,int p1,int p2,int p3,int p4,
 	return chifull ^ psifull;
 }
 //szybka pomoc jakie znaki s¹ obs³ugiwane
-void texthelp(map<char, int>input)
+void texthelp(map<char, int>inmap)
 {
 	int a = 1;
 	cout << "Dopuszcalne znaki (plus spacja):\n";
-	for (auto it = input.begin(); it != input.end(); it++)
+	for (auto it = inmap.begin(); it != inmap.end(); it++)
 	{
 		cout << it->first<<" ";
 		a++;
@@ -309,6 +309,7 @@ void filecode()
 		cout << "Zapis zakoñczony sukcesem\n";
 		outfile.close();
 		input.clear();
+		buffer.clear();
 		output.clear();
 	}
 	else cout << "B³¹d odczytu pliku wejœciowego, sprawdŸ nazwê i/lub œcie¿kê\n";
